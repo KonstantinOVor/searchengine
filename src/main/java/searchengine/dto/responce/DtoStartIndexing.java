@@ -1,11 +1,15 @@
-package searchengine.dto.statistics;
+package searchengine.dto.responce;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class StatisticsResponse {
+public class DtoStartIndexing {
+
     private boolean result;
-    private StatisticsData statistics;
+
+    private String error;
+
 }
+

@@ -1,11 +1,9 @@
 package searchengine.config;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
-public class Site {
+@Data
+public class SiteConfig {
     private String url;
     private String name;
 }

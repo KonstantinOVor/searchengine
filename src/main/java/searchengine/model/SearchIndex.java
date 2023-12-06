@@ -12,10 +12,10 @@ public class SearchIndex {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne (cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn (nullable = false)
     private Page page;
-    @ManyToOne (cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn (nullable = false)
     private Lemma lemma;
 

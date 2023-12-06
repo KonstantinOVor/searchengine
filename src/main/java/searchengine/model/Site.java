@@ -1,6 +1,9 @@
 package searchengine.model;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.Cascade;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -9,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = {"listOfLemma", "listOfPages"})
+@ToString(exclude = {"listOfLemma", "listOfPages"})
 @Entity
 @Table(name = "Site")
 public class Site {
@@ -20,9 +25,9 @@ public class Site {
     @OneToMany(mappedBy = "site")
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<Page> listOfPages;
-    @OneToMany(mappedBy = "site", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "site")
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<Lemma> listOfLemma;
+    private List<Lemma> listOfLemmas;
 
     @Column(name = "name", columnDefinition = "VARCHAR(255)", nullable = false)
     private String name;

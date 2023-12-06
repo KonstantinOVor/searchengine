@@ -1,6 +1,8 @@
 package searchengine.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.ColumnTransformer;
 
@@ -8,6 +10,8 @@ import javax.persistence.*;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(exclude = "indexList")
+@ToString(exclude = "indexList")
 @Entity
 @Table(name = "Lemma")
 public class Lemma {

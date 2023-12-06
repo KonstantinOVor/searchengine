@@ -1,24 +1,34 @@
-server:
-  port: 8080
-
 spring:
   datasource:
     username: root
     password: ko05ze09rok88
     url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+    schema: search_engine
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
 
+server:
+  port: 8080
+
 indexing-settings:
+  name: SearchBot
+  referer: https://google.com
+  timeout: 3000
+  contentType: text/html; charset=utf-8
+  userAgent: Chrome/4.0.249.0 Safari/532.5
   sites:
-    - url: https://www.lenta.ru
-      name: Лента.ру
-    - url: https://www.skillbox.ru
-      name: Skillbox
-    - url: https://www.playback.ru
-      name: PlayBack.Ru
+    - url: http://www.playback.ru/
+      name: Интернет магазин "PlayBack"
+    - url: https://et-cetera.ru/mobile/
+      name: Театр "Et-Cetera"
+#    - url: https://www.lutherancathedral.ru/
+#      name: Собор Петра и Павла
+
+
+
+
