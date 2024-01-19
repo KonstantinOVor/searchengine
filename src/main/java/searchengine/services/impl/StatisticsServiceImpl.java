@@ -2,7 +2,6 @@ package searchengine.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import searchengine.dto.statistics.DetailedStatisticsItem;
 import searchengine.dto.statistics.StatisticsData;
 import searchengine.dto.statistics.StatisticsResponse;
@@ -24,14 +23,30 @@ public class StatisticsServiceImpl implements StatisticsService {
         private final LemmaRepository lemmaRepository;
         private final SiteRepository siteRepository;
 
+    @Override
+    public StatisticsResponse getStatisticsResponse() {
+
+        TotalStatistics total = getTotalStatistics();
+        List<DetailedStatisticsItem> list = getDetailedStatisticsItemList();
+        return new StatisticsResponse(true, new StatisticsData(total, list));
+    }
+
     private TotalStatistics getTotalStatistics() {
+
         long sites = siteRepository.count();
         long pages = pagesRepository.count();
         long lemmas = lemmaRepository.count();
         return new TotalStatistics(sites, pages, lemmas, true);
     }
 
+    private List<DetailedStatisticsItem> getDetailedStatisticsItemList() {
+
+        List<Site> siteList = siteRepository.findAll();
+        return siteList.stream().map(this::getDetailedStatisticItem).collect(Collectors.toList());
+    }
+
     private DetailedStatisticsItem getDetailedStatisticItem(Site site) {
+
         String url = site.getUrl();
         String name = site.getName();
         String status = site.getStatus().toString();
@@ -40,16 +55,5 @@ public class StatisticsServiceImpl implements StatisticsService {
         long pages = pagesRepository.countBySite(site);
         long lemmas = lemmaRepository.countBySite(site);
         return new DetailedStatisticsItem(url, name, status, statusTime, error, pages, lemmas);
-    }
-
-    private List<DetailedStatisticsItem> getDetailedStatisticsItemList() {
-        List<Site> siteList = siteRepository.findAll();
-        return siteList.stream().map(this::getDetailedStatisticItem).collect(Collectors.toList());
-    }
-    @Override
-    public StatisticsResponse getStatisticsResponse() {
-        TotalStatistics total = getTotalStatistics();
-        List<DetailedStatisticsItem> list = getDetailedStatisticsItemList();
-        return new StatisticsResponse(true, new StatisticsData(total, list));
     }
 }

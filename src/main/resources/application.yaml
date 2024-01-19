@@ -17,8 +17,8 @@ server:
 
 indexing-settings:
   name: SearchBot
-  referer: https://google.com
-  timeout: 3000
+  referrer: http://www.google.com
+  timeout: 5000
   contentType: text/html; charset=utf-8
   userAgent: Chrome/4.0.249.0 Safari/532.5
   sites:
@@ -26,8 +26,8 @@ indexing-settings:
       name: Интернет магазин "PlayBack"
     - url: https://et-cetera.ru/mobile/
       name: Театр "Et-Cetera"
-#    - url: https://www.lutherancathedral.ru/
-#      name: Собор Петра и Павла
+#    - url: http://radiomv.ru/
+#      name: Радио МВД
 
 
 

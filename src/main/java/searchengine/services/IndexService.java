@@ -1,13 +1,13 @@
 package searchengine.services;
 
 
-import searchengine.dto.responce.DtoStartIndexing;
+import searchengine.dto.indexation.IndexingResponse;
 
 public interface IndexService {
 
-    DtoStartIndexing startIndexing();
+    IndexingResponse startIndexing();
 
-//    IndexResponse stopIndexing();
-//
-//    IndexResponse indexPage(String url);
+    IndexingResponse stopIndexing();
+
+    IndexingResponse indexPage(String url);
 }

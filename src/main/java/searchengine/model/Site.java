@@ -1,12 +1,9 @@
 package searchengine.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.springframework.format.annotation.DateTimeFormat;
-
+import searchengine.model.enumModel.Status;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,10 +19,10 @@ public class Site {
     @Column(name = "id")
     private Long id;
 
-    @OneToMany(mappedBy = "site")
+    @OneToMany(mappedBy = "site",fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<Page> listOfPages;
-    @OneToMany(mappedBy = "site")
+    @OneToMany(mappedBy = "site", fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<Lemma> listOfLemmas;
 
@@ -33,7 +30,6 @@ public class Site {
     private String name;
 
     @Enumerated(EnumType.STRING)
-//    @Column(name = "status", columnDefinition = "enum ('INDEXING', 'INDEXED', 'FAILED')", nullable = false)
     private Status status;
 
     @Column(name = "status_time", columnDefinition = "DATETIME", nullable = false)

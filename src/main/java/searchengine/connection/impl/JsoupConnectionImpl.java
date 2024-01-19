@@ -1,32 +1,36 @@
-package searchengine.services.impl;
+package searchengine.connection.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import searchengine.config.Response;
 import searchengine.config.SitesList;
-import searchengine.services.JsoupСonnection;
-import java.io.IOException;
+import searchengine.connection.JsoupСonnection;
+import searchengine.model.enumModel.ErrorResponse;
 
-@Service
+import java.io.IOException;
+@Slf4j
 @RequiredArgsConstructor
+
 public class JsoupConnectionImpl implements JsoupСonnection {
     private final SitesList config;
+    private final String url;
     private Connection.Response response;
 
     @Override
-    public Connection.Response getConnection(String url) {
+    public Connection.Response getConnection() {
         try {
             response = Jsoup.connect(url).
                     ignoreContentType(true).
                     userAgent(config.getUserAgent()).
-                    referrer(config.getReferer()).
+                    referrer(config.getReferrer()).
                     timeout(config.getTimeout()).
                     execute();
+
         } catch (IOException e) {
-            System.out.println(Response.SITE_NOT_AVAILABLE);
+            log.debug(ErrorResponse.FAILED_TO_ESTABLISH_CONNECTION.getDescription());
+            throw new RuntimeException(ErrorResponse.FAILED_TO_ESTABLISH_CONNECTION.getDescription(), e);
         }
         return response;
     }
@@ -42,5 +46,4 @@ public class JsoupConnectionImpl implements JsoupСonnection {
                 && (response.contentType().equalsIgnoreCase(config.getContentType()) &&
                 (getStatusCode(response) == HttpStatus.OK.value())));
     }
-
 }

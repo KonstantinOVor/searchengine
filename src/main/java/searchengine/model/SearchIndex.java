@@ -2,10 +2,11 @@ package searchengine.model;
 
 import lombok.Data;
 
+
 import javax.persistence.*;
 @Data
 @Entity
-@Table (name = "`Index`")
+@Table (name = "SearchIndex", uniqueConstraints = {@UniqueConstraint(columnNames = {"page_id", "lemma_id"})})
 public class SearchIndex {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,12 +14,13 @@ public class SearchIndex {
     private Long id;
 
     @ManyToOne
-    @JoinColumn (nullable = false)
+    @JoinColumn(name = "page_id", referencedColumnName = "id", nullable = false)
     private Page page;
     @ManyToOne
-    @JoinColumn (nullable = false)
+    @JoinColumn(name = "lemma_id", referencedColumnName = "id", nullable = false)
     private Lemma lemma;
 
     @Column (name = "`rank`", nullable = false)
     private float rank;
+
 }
