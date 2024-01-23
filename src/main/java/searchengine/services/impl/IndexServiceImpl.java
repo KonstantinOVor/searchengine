@@ -120,37 +120,42 @@ public class IndexServiceImpl implements IndexService {
             executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
             if (findSite(urlPage).isPresent()) {
-
                 String url = findSite(urlPage).get();
-
                 deleteSiteByUrl(url);
-
                 log.info("Indexing web site " + urlPage);
                 indexingResponse = indexWebSite(url);
 
             } else if (isPageInTable(urlPage).isPresent()) {
-
                 indexingResponse = indexPageOnConfig(urlPage);
             }
 
         } catch (InterruptedException interruptedException) {
-            log.info("Indexing has been stopped ".concat(urlPage).concat(". "));
+            log.error("Indexing has been stopped {}. ", urlPage);
             return new IndexingResponse(false, ErrorResponse.INDEXING_STOPPED_BY_THE_SYSTEM.getDescription());
         } catch (NoSuchElementException noSuchElementException) {
-            log.info("Element not found ".concat(urlPage).concat(". "));
+            log.error("Element not found {}. ", urlPage);
             return new IndexingResponse(false, ErrorResponse.ELEMENT_NOT_FOUND.getDescription());
         } catch (MalformedURLException malformedURLException) {
-            log.info("Incorrect URL ".concat(urlPage).concat(". "));
+            log.error("Incorrect URL {}. ", urlPage);
             return new IndexingResponse(false, ErrorResponse.URL_ADDRESS.getDescription());
+        } finally {
+            executorService.shutdown();
         }
 
         return indexingResponse;
     }
 
-    private void deleteSiteByUrl(String url) {
-        if (siteRepository.existsByUrl(url)) {
+    public void deleteSiteByUrl(String url) {
+        try {
             Site site = siteRepository.findByUrl(url);
-            siteRepository.deleteById(site.getId());
+            if (site != null) {
+                siteRepository.deleteById(site.getId());
+               log.info(PositiveResponse.SITE_DELETED.getDescription());
+            } else {
+                log.debug(ErrorResponse.PAGE_NOT_FOUND.getDescription());
+            }
+        } catch (Exception e) {
+            log.error(ErrorResponse.ERROR_WHILE_DELETING.getDescription() + e.getMessage());
         }
     }
 

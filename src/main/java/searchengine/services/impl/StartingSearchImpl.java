@@ -47,10 +47,8 @@ public class StartingSearchImpl implements StartingSearch {
         }
 
         searchData.sort(Comparator.comparing(SearchDTO::relevance).reversed());
-
         SearchResponse fullSearchResponse = new SearchResponse(true, voidString, searchData.size(),
                 searchData, HttpStatus.OK);
-
         List<SearchDTO> filteredSearchData = filterSearchData(fullSearchResponse, searchConfig);
 
         return new SearchResponse(true, voidString, fullSearchResponse.getCount(),

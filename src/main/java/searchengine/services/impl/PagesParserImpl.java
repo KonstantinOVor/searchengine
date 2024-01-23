@@ -63,7 +63,6 @@ public class PagesParserImpl implements PagesParser {
 
         List <Page> pageList = pageListRef.get();
         List<Lemma> lemmaList = lemmaListRef.get();
-
         processPageList(pageList, lemmaList, indexDTOList);
 
         return indexDTOList;

@@ -98,7 +98,6 @@ public class LemmatizerImpl implements Lemmatizer {
 
             if (string.matches(regularRussianLetters)) {
                 List<String> lemmas = getLemmas(string);
-
                 addLemmaIndices(lemmas, lemma, index, lemmaIndexList);
             }
             index += string.length() + 1;

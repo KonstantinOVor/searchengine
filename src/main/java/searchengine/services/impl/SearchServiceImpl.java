@@ -78,7 +78,6 @@ public class SearchServiceImpl implements SearchService {
 
             Map<Page, Float> relevanceMap = getRelevanceFromPage(pagesList, indexesList);
 
-
         return getSearchDtoList((ConcurrentHashMap<Page, Float>) relevanceMap, textLemmaList);
     }
 

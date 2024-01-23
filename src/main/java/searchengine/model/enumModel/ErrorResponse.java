@@ -12,6 +12,7 @@ public enum ErrorResponse {
                                 "указанных в конфигурационном файле"),
     PAGE_IS_NOT_SPECIFIED("Страница не указана или введена неверно!"),
     EMPTY_REQUEST("Задан пустой поисковый запрос"),
+    ERROR_WHILE_DELETING ("Ошибка при удалении сайта: "),
     RESPONSE_IS_BLANK ("Ответ от поисковой системы пустой"),
     FAILED_TO_ESTABLISH_CONNECTION("Не удалось установить соединение"),
     INVALID_SYNTAX ("Слово содержит недопустимые символы или синтаксис"),
