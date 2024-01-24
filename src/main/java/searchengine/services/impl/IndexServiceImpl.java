@@ -66,19 +66,16 @@ public class IndexServiceImpl implements IndexService {
 
         List<SiteConfig> siteList = config.getSites();
         siteRepository.deleteAll();
-        executorService = Executors.
-                newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         for (SiteConfig site : siteList) {
             String url = site.getUrl();
-            executorService.submit(new ParallelSiteParsingEngineImpl(url, pageRepository, siteRepository, lemmaRepository,
-                    indexRepository, lemmaSearch, pagesParser, config));
+            indexSite(url);
         }
         executorService.shutdown();
         flag = false;
         return new IndexingResponse(true, PositiveResponse.GOOD.getDescription());
     }
-
     @Override
     public IndexingResponse stopIndexing() {
 
@@ -92,8 +89,8 @@ public class IndexServiceImpl implements IndexService {
             return new IndexingResponse(false, ErrorResponse. INDEXING_STOPPED_BY_THE_USER.getDescription());
         }
     }
-
     private boolean isIndexing() {
+
         siteRepository.flush();
         Iterable<Site> siteList = siteRepository.findAll();
         for (Site site : siteList) {
@@ -116,8 +113,6 @@ public class IndexServiceImpl implements IndexService {
                 indexingResponse = new IndexingResponse(false, ErrorResponse.PAGE_IS_NOT_SPECIFIED.getDescription(),
                         HttpStatus.BAD_REQUEST);
             }
-
-            executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
             if (findSite(urlPage).isPresent()) {
                 String url = findSite(urlPage).get();
@@ -146,6 +141,7 @@ public class IndexServiceImpl implements IndexService {
     }
 
     public void deleteSiteByUrl(String url) {
+
         try {
             Site site = siteRepository.findByUrl(url);
             if (site != null) {
@@ -159,12 +155,21 @@ public class IndexServiceImpl implements IndexService {
         }
     }
 
+    private IndexingResponse indexWebSite(String url) {
 
-    private IndexingResponse indexWebSite(String url) throws InterruptedException {
-        executorService.submit(new ParallelSiteParsingEngineImpl(url, pageRepository, siteRepository, lemmaRepository,
-                indexRepository, lemmaSearch, pagesParser, config));
+        executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        indexSite(url);
         executorService.shutdown();
         return new IndexingResponse(true, PositiveResponse.REQUEST_PROCESSED.getDescription());
+    }
+    private void indexSite(String url) {
+
+        try {
+          executorService.submit(new ParallelSiteParsingEngineImpl(url, pageRepository, siteRepository, lemmaRepository,
+                    indexRepository, lemmaSearch, pagesParser, config));
+        } catch (Exception e) {
+            log.error(ErrorResponse.ERROR_WHILE_SUBMIT.getDescription(), e.getMessage());
+        }
     }
 
     private IndexingResponse indexPageOnConfig(String urlPage) throws MalformedURLException, NoSuchElementException,
@@ -183,13 +188,23 @@ public class IndexServiceImpl implements IndexService {
                 .forEach(site -> {
                     ParallelSiteParsingEngineImpl startParseHTML = new ParallelSiteParsingEngineImpl(urlPage, pageRepository,
                             siteRepository, lemmaRepository, indexRepository, lemmaSearch, pagesParser, config);
-                    executorService.submit(new StartingPageIndexing(site, urlPage, config,
-                            pageRepository, lemmaRepository, startParseHTML, lemmaSearch, lemmatizer));
+                    submitIndexingTask(urlPage, site, startParseHTML);
                 });
 
         executorService.shutdown();
 
         return new IndexingResponse(true, PositiveResponse.REQUEST_PROCESSED.getDescription());
+    }
+
+    private void submitIndexingTask(String urlPage, SiteConfig site, ParallelSiteParsingEngineImpl startParseHTML) {
+
+        executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        try {
+            executorService.submit(new StartingPageIndexing(site, urlPage, config,
+                    pageRepository, lemmaRepository, startParseHTML, lemmaSearch, lemmatizer));
+        } catch (Exception e) {
+            log.error(ErrorResponse.ERROR_WHILE_SUBMIT.getDescription(), e.getMessage());
+        }
     }
 
     private void deletePageAndLemmas(Page page) {

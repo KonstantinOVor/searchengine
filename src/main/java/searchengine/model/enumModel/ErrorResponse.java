@@ -16,6 +16,7 @@ public enum ErrorResponse {
     RESPONSE_IS_BLANK ("Ответ от поисковой системы пустой"),
     FAILED_TO_ESTABLISH_CONNECTION("Не удалось установить соединение"),
     INVALID_SYNTAX ("Слово содержит недопустимые символы или синтаксис"),
+    ERROR_WHILE_SUBMIT ("Ошибка при выполнении задания"),
     SITE_NOT_AVAILABLE("Сайт недоступен");
 
 

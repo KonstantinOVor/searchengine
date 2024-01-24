@@ -17,7 +17,6 @@ import searchengine.repository.SiteRepository;
 import searchengine.services.PagesParser;
 import searchengine.parser.ParallelSiteParsingEngine;
 import searchengine.services.LemmaSearch;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -79,7 +77,7 @@ public class ParallelSiteParsingEngineImpl implements ParallelSiteParsingEngine,
                 saveLemmasInDatabase(site);
                 saveIndexesToDatabase(site);
                 stopWatch.stop();
-                System.out.println("Время выполнения метода: " + stopWatch.getTotalTimeMillis() + " мс");
+                log.info("Время выполнения метода: " + stopWatch.getTotalTimeMillis() + " мс");
 
             } else {
                 forkJoinPool.shutdown();
@@ -141,7 +139,7 @@ public class ParallelSiteParsingEngineImpl implements ParallelSiteParsingEngine,
 
         int startPath;
         String pagePath;
-        List<Page> pageList = new CopyOnWriteArrayList<>();
+        List<Page> pageList = Collections.synchronizedList(new ArrayList<>());
 
         for (PageDTO pageDTO : pageDtoList) {
 
@@ -170,7 +168,7 @@ public class ParallelSiteParsingEngineImpl implements ParallelSiteParsingEngine,
             if (!Thread.interrupted()) {
 
                 site.setStatusTime(LocalDateTime.now());
-                List<LemmaDTO> lemmaDtoList = lemmaSearch.startLemmaSearch(site);
+                List<LemmaDTO> lemmaDtoList = Collections.synchronizedList(lemmaSearch.startLemmaSearch(site));
                 lemmaList = lemmaSheetAssembly(site, lemmaDtoList);
 
                 if (!lemmaList.isEmpty()) {
@@ -189,7 +187,7 @@ public class ParallelSiteParsingEngineImpl implements ParallelSiteParsingEngine,
     @Override
     public List<Lemma> lemmaSheetAssembly(Site site, List<LemmaDTO> lemmaDtoList) throws InterruptedException {
 
-        List<Lemma> lemmaList = new CopyOnWriteArrayList<>();
+        List<Lemma> lemmaList = Collections.synchronizedList(new ArrayList<>());
 
         for (LemmaDTO lemmaDto : lemmaDtoList) {
             Lemma lemma = new Lemma();
@@ -226,7 +224,7 @@ public class ParallelSiteParsingEngineImpl implements ParallelSiteParsingEngine,
 
     private List<SearchIndex> indexTableBuilding(List<IndexDTO> indexDtoList) throws InterruptedException {
 
-        List<SearchIndex> searchIndexList = new CopyOnWriteArrayList<>();
+        List<SearchIndex> searchIndexList = Collections.synchronizedList(new ArrayList<>());
 
         for (IndexDTO indexDto : indexDtoList) {
             SearchIndex searchIndex = indexRepository.findByPageAndLemma(indexDto.pageId(),
