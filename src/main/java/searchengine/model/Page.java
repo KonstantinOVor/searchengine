@@ -1,7 +1,6 @@
 package searchengine.model;
 
 import lombok.*;
-import org.hibernate.annotations.Cascade;
 import javax.persistence.*;
 import java.util.List;
 
@@ -20,8 +19,7 @@ public class Page {
     @JoinColumn (name = "site_id", referencedColumnName = "id", nullable = false)
     private Site site;
 
-    @OneToMany(mappedBy = "page")
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
     private List<SearchIndex> indexList;
 
     @Column (name = "path", nullable = false)

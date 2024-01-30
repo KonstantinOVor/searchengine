@@ -3,7 +3,6 @@ package searchengine.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.hibernate.annotations.Cascade;
 import javax.persistence.*;
 import java.util.List;
 @Entity
@@ -21,8 +20,7 @@ public class Lemma {
     @JoinColumn (name = "site_id", referencedColumnName = "id",nullable = false)
     private Site site;
 
-    @OneToMany(mappedBy = "lemma")
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @OneToMany(mappedBy = "lemma", cascade = CascadeType.ALL)
     private List<SearchIndex> indexList;
 
     @Column (name = "lemma", nullable = false)

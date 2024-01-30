@@ -1,8 +1,6 @@
 package searchengine.model;
 
 import lombok.Data;
-
-
 import javax.persistence.*;
 @Data
 @Entity
@@ -22,5 +20,4 @@ public class SearchIndex {
 
     @Column (name = "`rank`", nullable = false)
     private float rank;
-
 }

@@ -28,8 +28,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Slf4j
 @Service
@@ -65,13 +64,14 @@ public class IndexServiceImpl implements IndexService {
         }
 
         List<SiteConfig> siteList = config.getSites();
-        siteRepository.deleteAll();
+        deleteTables ();
         executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         for (SiteConfig site : siteList) {
             String url = site.getUrl();
             indexSite(url);
         }
+
         executorService.shutdown();
         flag = false;
         return new IndexingResponse(true, PositiveResponse.GOOD.getDescription());
@@ -140,12 +140,20 @@ public class IndexServiceImpl implements IndexService {
         return indexingResponse;
     }
 
+    private void  deleteTables () {
+        indexRepository.deleteAllInBatch();
+        pageRepository.deleteAllInBatch();
+        lemmaRepository.deleteAllInBatch();
+        siteRepository.deleteAllInBatch();
+    }
+
     public void deleteSiteByUrl(String url) {
 
         try {
-            Site site = siteRepository.findByUrl(url);
-            if (site != null) {
-                siteRepository.deleteById(site.getId());
+            Site siteNew = siteRepository.findByUrl(url).orElse(null);
+
+            if (siteNew != null) {
+                siteRepository.deleteById(siteNew.getId());
                log.info(PositiveResponse.SITE_DELETED.getDescription());
             } else {
                 log.debug(ErrorResponse.PAGE_NOT_FOUND.getDescription());

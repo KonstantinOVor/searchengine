@@ -17,6 +17,8 @@ import searchengine.services.LemmaSearch;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class LemmaSearchImpl implements LemmaSearch {
     private final PagesRepository pageRepository;
     private final Lemmatizer lemmatizer;
+    private Lock lock = new ReentrantLock();
     private List<LemmaDTO> lemmaDtoList;
     private String selector = "*";
     private String space = " ";
@@ -32,39 +35,53 @@ public class LemmaSearchImpl implements LemmaSearch {
 
     @Override
     public List<LemmaDTO> startLemmaSearch(Site site) {
-
-        lemmaDtoList = new CopyOnWriteArrayList<>();
-        Iterable<Page> pageList = pageRepository.findBySite(site);
-        lemmaSummation(pageList).forEach((key, value) -> lemmaDtoList.add(new LemmaDTO(key, value)));
+        lock.lock();
+        try {
+            lemmaDtoList = new CopyOnWriteArrayList<>();
+            Iterable<Page> pageList = pageRepository.findBySite(site);
+            lemmaSummation(pageList).forEach((key, value) -> lemmaDtoList.add(new LemmaDTO(key, value)));
+        } finally {
+            lock.unlock();
+        }
         return lemmaDtoList;
     }
 
     private Map<String, Integer> lemmaSummation (Iterable<Page> pageList){
+        lock.lock();
+        try {
+            Map<String, Integer> mapLemmas = new ConcurrentHashMap<>();
 
-        Map<String, Integer> mapLemmas = new ConcurrentHashMap<>();
+            for (Page page : pageList) {
+                String content = page.getContent();
+                String text = deletingTags(content, selector);
+                Map<String, Integer> lemmaMap = lemmatizer.getMapLemma(text);
+                lemmaMap.forEach((key, value) -> mapLemmas.merge(key, one, Integer::sum));
+            }
 
-        for (Page page : pageList) {
-            String content = page.getContent();
-            String text = deletingTags(content, selector);
-            Map<String, Integer> lemmaMap = lemmatizer.getMapLemma(text);
-            lemmaMap.forEach((key, value) -> mapLemmas.merge(key, one, Integer::sum));
+            return mapLemmas;
+        } finally {
+            lock.unlock();
         }
-        return mapLemmas;
     }
 
 
     @Override
     public String deletingTags(String content, String selector) {
+        lock.lock();
+        try {
 
-        Document doc = Jsoup.parse(content);
-        Elements elements = doc.select(selector);
+            Document doc = Jsoup.parse(content);
+            Elements elements = doc.select(selector);
 
-        if (elements != null) {
-            StringBuffer stringBuffer = new StringBuffer();
-            for (Element element : elements) {
-                stringBuffer.append(element.ownText()).append(space);
+            if (elements != null) {
+                StringBuffer stringBuffer = new StringBuffer();
+                for (Element element : elements) {
+                    stringBuffer.append(element.ownText()).append(space);
+                }
+                return stringBuffer.toString();
             }
-            return stringBuffer.toString();
+        } finally {
+            lock.unlock();
         }
         return null;
     }

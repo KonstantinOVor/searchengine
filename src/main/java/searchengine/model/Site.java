@@ -1,7 +1,6 @@
 package searchengine.model;
 
 import lombok.*;
-import org.hibernate.annotations.Cascade;
 import org.springframework.format.annotation.DateTimeFormat;
 import searchengine.model.enumModel.Status;
 import javax.persistence.*;
@@ -19,11 +18,9 @@ public class Site {
     @Column(name = "id")
     private Long id;
 
-    @OneToMany(mappedBy = "site",fetch = FetchType.LAZY)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @OneToMany(mappedBy = "site",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Page> listOfPages;
-    @OneToMany(mappedBy = "site", fetch = FetchType.LAZY)
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @OneToMany(mappedBy = "site", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Lemma> listOfLemmas;
 
     @Column(name = "name", columnDefinition = "VARCHAR(255)", nullable = false)
@@ -41,5 +38,4 @@ public class Site {
 
     @Column(name = "url", columnDefinition = "VARCHAR(255)", nullable = false)
     private String url;
-
 }

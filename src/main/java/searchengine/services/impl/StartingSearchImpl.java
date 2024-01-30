@@ -36,7 +36,8 @@ public class StartingSearchImpl implements StartingSearch {
         }
 
         if(!(site == null)){
-            if (siteRepository.findByUrl(site) == null) {
+            Site siteNew = siteRepository.findByUrl(site).orElse(null);
+            if (siteNew == null) {
                 return new SearchResponse(false, ErrorResponse.PAGE_OUTSIDE_THE_CONFIGURATION_FILE.getDescription(),
                         HttpStatus.NOT_FOUND);
             } else {
@@ -75,7 +76,8 @@ public class StartingSearchImpl implements StartingSearch {
 
     private List<SearchDTO> siteSearch (String text, String url) {
 
-        Site site = siteRepository.findByUrl(url);
+        Site site = siteRepository.findByUrl(url).orElse(new Site());
+
         Set<String> textLemmaSet = searchService.getLemmaFromSearchText(text);
         List<Lemma> foundLemmaList = searchService.getLemmaFromSite(textLemmaSet, site);
 
